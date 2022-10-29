@@ -13,4 +13,4 @@ msgs = \
     )
 ]
 publish.multiple(msgs, hostname="test.mosquitto.org")
-#Topic /seoul/yuokok 에 문자값 multiple 1, multiple 2를 발행한다.
+#Topic /bm/test 에 문자값 multiple 1, multiple 2를 발행.
