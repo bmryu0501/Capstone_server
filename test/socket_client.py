@@ -17,6 +17,6 @@ import socket
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-sock.connect(('13.125.51.213'))
+sock.connect(('13.125.51.213', 8080))
 
 sock.send("hello!".encode())
