@@ -19,7 +19,7 @@ print('메시지를 보냈습니다.')
 import socket
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('ubuntu', 8080))
+server.bind(('ip-172-31-2-206.ap-northeast-2.compute.internal', 8080))
 
 server.listen(0)
 
