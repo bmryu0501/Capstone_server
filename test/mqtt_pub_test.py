@@ -4,7 +4,7 @@ msgs = \
 [
     {
         'topic':"/bm/test",
-        'payload':"multiple 1"
+        'payload':"UID: 10"
     },
 
     (
