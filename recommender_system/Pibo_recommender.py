@@ -113,6 +113,9 @@ class recommend_achievement:
         self.__alpha = alpha
         self.__beta = beta
 
+    def update():
+        pass
+
 class recommend_preference:
     '''
     This class recommend task based on preference with implicit feedback

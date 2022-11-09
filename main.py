@@ -2,6 +2,7 @@ from recommender_system import Pibo_recommender
 import argparse
 import socket
 import threading
+import pymysql
 
 def handle_client(client_socket):
     '''
@@ -9,6 +10,37 @@ def handle_client(client_socket):
     '''
     user = client_socket.recv(65535)
     message = user.decode()
+
+    # message parsing
+    message = message.split(' ')
+    print("message:", message)
+    user_id = int(message[0])
+    print("user_id:", user_id)
+    command = message[1]
+    print("command:", command)
+
+    
+    # recommend task to user
+    if command == 'recommend':
+        recommender = Pibo_recommender.recommend_achievement()
+        recommend_task = recommender.recommend(user_id)
+        print("recommend_task:", recommend_task)
+        client_socket.sendall(recommend_task.encode())
+        client_socket.close()
+
+    # update achievement evaluation
+    elif command == 'update':
+        juso_db = pymysql.connect(
+            user='capstone2', 
+            passwd='sirlab2020', 
+            host='127.0.0.1', 
+            db='', 
+            charset='utf8'
+        )
+
+    # if command is not recommend or update, close socket
+    else:
+        client_socket.close()
 
 def accept_func(host, port):
     global server_socket
@@ -40,9 +72,6 @@ def accept_func(host, port):
         print("client_handler.daemon:", client_handler.daemon)
         client_handler.start()
     
-
-    
-
 
 
 
