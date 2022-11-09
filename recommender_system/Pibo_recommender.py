@@ -16,7 +16,6 @@ Recommend class related to achievement evaluation
 ## TODO ##
 accuracy 측정할 거 만들기
 Matrix Factorization 시 factor 개수 조정해서 최적 개수 찾기
-사용 될 유효하다고 할 수 있을만한 dataset 생각해서 만들기
 recommender 두 개 parameter 일관성 맞추기
 recommend_preference에서 engagement level predict랑 실제 estimated 구분
 recommend_preference에서 없는 user가 입력으로 들어왔을 때 예외처리
@@ -33,18 +32,23 @@ class recommend_achievement:
     전문가 평가가 이루어진 날부터 날짜가 멀어질 수록 전문가의 계수값 하락
     '''
 
-    def __init__(self, file_name, col_parent='Parent', col_expert='Expert', num_task=50):
+    def __init__(self, data, is_file_name=False, col_parent='Parent', col_expert='Expert', num_task=50):
         '''
         Make recommend_achievement class
 
-        parameters: 
-        file_name: file name to use (csv format)
+        parameters:
+        data: pandas data frame with achievement evaluation 
+              or file name to use (csv format)
+        [is_file_name: True if data is file name] = False
         [col_parent: column name of achievement evaluation by parents] = 'parent'
         [col_expert: column name of achievement eavluation by expert] = 'expert'
         [num_task: number of tasks] = 50
-
         '''
-        self.__achievement = pd.read_csv(file_name)
+        if is_file_name:
+            self.__achievement = pd.read_csv(data)
+        else:
+            self.__achievement = data
+        
         self.__col_parent = col_parent
         self.__col_expert = col_expert
         self.__num_task = num_task
@@ -70,7 +74,7 @@ class recommend_achievement:
         self.__beta = beta
 
         self.__achievement['NotAchieved'] = 100 - (self.__achievement[self.__col_parent] * self.__alpha +
-                                                 self.__achievement[self.__col_expert] * self.__beta)
+                                                   self.__achievement[self.__col_expert] * self.__beta)
         # drop duplicated data
         self.__achievement = self.__achievement.drop_duplicates(['UserID', 'TaskID'], keep='last')
 
@@ -108,8 +112,6 @@ class recommend_achievement:
     def setAlphaBeta(self, alpha, beta):
         self.__alpha = alpha
         self.__beta = beta
-
-    rmse = -1
 
 class recommend_preference:
     '''

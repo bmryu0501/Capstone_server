@@ -3,6 +3,8 @@ import argparse
 import threading
 import time
 
+# 참고 글 https://sungmin-joo.tistory.com/57
+
 host = "ec2-13-209-85-23.ap-northeast-2.compute.amazonaws.com"
 port = 8080
 
@@ -28,7 +30,7 @@ def accept_func():
     #서버가 최대 5개의 클라이언트의 접속을 허용한다.
     server_socket.listen(5)
 
-    while 1:
+    while True:
         try:
             #클라이언트 함수가 접속하면 새로운 소켓을 반환한다.
             client_socket, addr = server_socket.accept()
@@ -47,7 +49,7 @@ if __name__ == '__main__':
     #parser와 관련된 메서드 정리된 블로그 : https://docs.python.org/ko/3/library/argparse.html
     #description - 인자 도움말 전에 표시할 텍스트 (기본값: none)
     #help - 인자가 하는 일에 대한 간단한 설명.
-    parser = argparse.ArgumentParser(description="\ncapstone server\n-p port\n")
+    parser = argparse.ArgumentParser(description="\nsocker server\n-p port\n")
     parser.add_argument('-p', help="port")
 
     args = parser.parse_args()
