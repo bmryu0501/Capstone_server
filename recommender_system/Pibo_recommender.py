@@ -33,18 +33,20 @@ class recommend_achievement:
     전문가 평가가 이루어진 날부터 날짜가 멀어질 수록 전문가의 계수값 하락
     '''
 
-    def __init__(self, file_name, col_parent='Parent', col_expert='Expert', num_task=50):
+    def __init__(self, data, col_parent='Parent', col_expert='Expert', num_task=50):
         '''
         Make recommend_achievement class
 
         parameters: 
-        file_name: file name to use (csv format)
+        data: data frame of achievement evaluation
         [col_parent: column name of achievement evaluation by parents] = 'parent'
         [col_expert: column name of achievement eavluation by expert] = 'expert'
         [num_task: number of tasks] = 50
 
         '''
-        self.__achievement = pd.read_csv(file_name)
+
+        #self.__achievement = pd.read_csv(file_name)  # when using csv data
+        self.__achievement = data
         self.__col_parent = col_parent
         self.__col_expert = col_expert
         self.__num_task = num_task
@@ -111,6 +113,8 @@ class recommend_achievement:
 
     rmse = -1
 
+
+"""
 class recommend_preference:
     '''
     This class recommend task based on preference with implicit feedback
@@ -174,7 +178,7 @@ class recommend_preference:
         if num_recommend == 1:
             return ret[0]
         return ret[:num_recommend]
-
+"""
         
 
 class preference_to_engagement_level:
