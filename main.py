@@ -30,13 +30,8 @@ def handle_client(client_socket):
 
     # update achievement evaluation
     elif command == 'update':
-        db_information = pymysql.connect(
-            user='capstone2',
-            passwd='sirlab2020',
-            host='127.0.0.1',
-            db='',
-            charset='utf8'
-        )
+        # TODO : update achievement evaluation
+        pass
 
     # if command is not recommend or update, close socket
     else:

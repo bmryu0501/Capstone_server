@@ -6,21 +6,276 @@ from surprise.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 import os
 import numpy as np
-import implicit
-import scipy.sparse as sparse
+#import implicit
+#import scipy.sparse as sparse
+import pymysql
 
 '''
 Recommend class related to achievement evaluation
 
 
 ## TODO ##
-accuracy 측정할 거 만들기
-Matrix Factorization 시 factor 개수 조정해서 최적 개수 찾기
-recommender 두 개 parameter 일관성 맞추기
-recommend_preference에서 engagement level predict랑 실제 estimated 구분
-recommend_preference에서 없는 user가 입력으로 들어왔을 때 예외처리
-recommend_preference에서 train set으로 나눌지 안나눌지 고민하고 넣든말든
+1. grid_search for hyperparameter tuning
+2. model save/load
+
 '''
+
+class recommend_SVD:
+    '''
+    Recommend class using SVD
+    Surprise library is used
+    '''
+
+    def __init__(self, update=False):
+        '''
+        Initialize class
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+
+        # varibles
+        self.__alpha = 0.4
+        self.__beta = 0.6
+
+
+        # connect to mysql DB
+        self.__connectDB()
+        # set achievement evaluation data
+        self.data_achievement = self.__setAchievement()
+        # set engagement level data
+        self.data_engagement = self.__setEngagement()
+
+        self.__closeDB()
+
+        if update:
+            # update model
+            self.update_model_achievement()
+            self.update_model_engagement()
+
+
+
+
+    def __connectDB(self):
+        '''
+        Connect to mysql DB
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+
+        # connect to mysql DB
+        self.conn = pymysql.connect(
+            user='capstone2',
+            passwd='sirlab2020',
+            db='Capstone_DB',
+            charset='utf8'
+        )
+
+        # set cursor
+        self.curs = self.conn.cursor(pymysql.cursors.DictCursor)
+
+
+    def __closeDB(self):
+        '''
+        Close mysql DB
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+
+        # close mysql DB
+        self.conn.close()
+
+
+    def recommend_achievement(self, user_id, num_task=1):
+        '''
+        Recommend by achievement evaluation
+
+        Parameters
+        ----------
+        user_id : int
+            User id
+        num_task : int
+            Number of tasks to recommend
+
+        Returns
+        -------
+        float
+            Estimated achievement evaluation
+        '''
+        #TODO: load model
+        
+        # return depends on the number of tasks to recommend
+        if num_task == 1:
+            pass #TODO: return single task
+        else:
+            pass #TODO: return multiple tasks
+
+    def recommend_engagement(self, user_id, num_task=1):
+        '''
+        Recommend by engagement level
+
+        Parameters
+        ----------
+        user_id : int
+            User id
+        num_task : int
+            Number of tasks to recommend
+
+        Returns
+        -------
+        float
+            Estimated engagement level
+        '''
+        #TODO: load model
+
+        # return depends on the number of tasks to recommend
+        if num_task == 1:
+            pass #TODO: return single task
+        else: 
+            pass #TODO: return multiple tasks
+
+    def __setAchievement(self):
+        '''
+        Set achievement evaluation data
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+        # load data from mysql DB
+        sql = "SELECT * FROM achievement"
+        self.curs.execute(sql)
+        self.data_achievement = pd.DataFrame(self.curs.fetchall())
+
+        # preprocess data
+        self.data_achievement['NotAchieved'] = 100 - (self.data_achievement['Score_Parent'] * self.__alpha +
+                                                      self.data_achievement['Score_Expert'] * self.__beta)
+        # drop duplicated data
+        self.data_achievement = self.data_achievement.drop_duplicates(['UID', 'TID'], keep='last')
+        # set reader
+        reader = Reader(rating_scale=(0, 100))
+        # set data
+        self.data_achievement = Dataset.load_from_df(self.data_achievement[['UID', 'TID', 'NotAchieved']], reader=reader)
+        # set data
+        data = Dataset.load_from_df(self.data_achievement, reader)
+
+        # split data into train set and test set
+        self.__trainset_achievement, self.__testset_achievement = train_test_split(data, test_size=.25)
+
+    def __setEngagement(self):
+        '''
+        Set engagement level data
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+
+        # load data from mysql DB
+        sql = "SELECT * FROM engagement"
+        self.curs.execute(sql)
+        self.data_engagement = pd.DataFrame(self.curs.fetchall())
+        
+        # preprocess data
+        # drop duplicated data
+        self.data_engagement = self.data_engagement.drop_duplicates(['UID', 'TID'], keep='last')
+        # set reader
+        reader = Reader(rating_scale=(0, 100))
+        # set data
+        self.data = Dataset.load_from_df(self.data_engagement[['UID', 'TID', 'Engagement_Level']], reader=reader)
+
+        # split data into train set and test set
+        self.__trainset_engagement, self.__testset_engagement = train_test_split(self.data, test_size=.25)
+
+    def set_alpha_beta(self, alpha, beta):
+        '''
+        Set alpha and beta
+
+        Parameters
+        ----------
+        alpha : float
+            Weight of parent score
+        beta : float
+            Weight of expert score
+
+        Returns
+        -------
+        None
+        '''
+
+        self.__alpha = alpha
+        self.__beta = beta
+
+    def update_model_achievement(self):
+        '''
+        Update model for achievement evaluation
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+        # update data
+        self.connectDB()
+        self.setAchievement()
+        self.closeDB()
+
+        # set model
+        self.model_achievement = SVD(n_factors=10)
+        # train model
+        self.model_achievement.fit(self.__trainset_achievement)
+    
+    def update_model_engagement(self):
+        '''
+        Update model for engagement level
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        '''
+        # update data
+        self.connectDB()
+        self.setEngagement()
+        self.closeDB()
+
+        # set model
+        self.model_engagement = SVD(n_factors=10)
+        # train model
+        self.model_engagement.fit(self.__trainset_engagement)
+
+
 
 class recommend_achievement:
     '''
@@ -87,7 +342,7 @@ class recommend_achievement:
         train, test = train_test_split(data, test_size, random_state=42)
 
         # set model and train with train set
-        self.__model = SVD()
+        self.__model = SVD(k=10)
         self.__model.fit(train)
 
         predictions = self.__model.test(test)
@@ -116,9 +371,9 @@ class recommend_achievement:
     def update():
         pass
 
-class recommend_preference:
+class recommend_engagement:
     '''
-    This class recommend task based on preference with implicit feedback
+    This class recommend task based on engagement level with implicit feedback
 
     get data and user ID, then recommend task(s)
     '''
