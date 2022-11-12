@@ -25,7 +25,8 @@ def handle_client(client_socket):
         recommender = Pibo_recommender.recommend_achievement()
         recommend_task = recommender.recommend(user_id)
         print("recommend_task:", recommend_task)
-        client_socket.sendall(recommend_task.encode())
+        message = recommend_task
+        client_socket.sendall(message.encode())
         client_socket.close()
 
     # update achievement evaluation
