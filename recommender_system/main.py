@@ -11,7 +11,7 @@ TODO
 
 from Pibo_recommender import *
 
-recom_achieve = recommend_achievement('../dataset/achievement.csv')
+recom_achieve = recommend_SVD('../dataset/achievement.csv')
 print(recom_achieve.recommend(0, num_recommend=10))
 print(recom_achieve.rmse)
 

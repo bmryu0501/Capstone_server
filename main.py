@@ -3,6 +3,33 @@ import argparse
 import socket
 import threading
 import pymysql
+import pandas as pd
+
+'''
+TODO
+주기적 모델 업데이트
+모델 저장
+query
+
+연결 되는지 확인 + 잘 돌아가는지 확인 + 디버깅
+'''
+
+'''
+def recommend_achievement():
+    db = pymysql.connect(
+            user='capstone2',
+            passwd='sirlab2020',
+            db='Capstone_DB',
+            charset='utf8'
+        )
+        cursor = db.cursor()
+
+        query = "SELECT * FROM achievement"
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        df = pd.DatatFrame(result, columns=['Index', 'UID', 'CID', 'TID', 'Score_Parent', 'Score_Expert'])
+'''
 
 def handle_client(client_socket):
     '''
@@ -19,10 +46,10 @@ def handle_client(client_socket):
     command = message[1]
     print("command:", command)
 
-    
+    ### command execution ###
     # recommend task to user
     if command == 'recommend':
-        recommender = Pibo_recommender.recommend_achievement()
+        recommender = Pibo_recommender.recommend_SVD()
         recommend_task = recommender.recommend(user_id)
         print("recommend_task:", recommend_task)
         client_socket.sendall(recommend_task.encode())
@@ -30,17 +57,39 @@ def handle_client(client_socket):
 
     # update achievement evaluation
     elif command == 'update':
-        juso_db = pymysql.connect(
-            user='capstone2', 
-            passwd='sirlab2020', 
-            host='127.0.0.1', 
-            db='', 
+        db = pymysql.connect( # TODO : parameterize elements
+            user='capstone2',
+            passwd='sirlab2020',
+            db='Capstone_DB',
             charset='utf8'
         )
+        talbe_name = message[2]
+        print("talbe_name:", talbe_name)
+
+        # update achievement evaluation
+        if talbe_name == 'achievement':
+            UID = int(message[3])
+            CID = int(message[4])
+            TID = int(message[5])
+            Score_Parent = int(message[6])
+            Score_Expert = int(message[7])
+            print("UID:", UID)
+            print("CID:", CID)
+            print("TID:", TID)
+            print("Score_Parent:", Score_Parent)
+            print("Score_Expert:", Score_Expert)
+
+            cursor = db.cursor()
+            query = "INSERT INTO achievement (UID, CID, TID, Score_Parent, Score_Expert) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(query, (UID, CID, TID, Score_Parent, Score_Expert))
+            db.commit()
+            db.close()
 
     # if command is not recommend or update, close socket
     else:
-        client_socket.close()
+        print("command is not recommend or update")
+    
+    client_socket.close()
 
 def accept_func(host, port):
     global server_socket

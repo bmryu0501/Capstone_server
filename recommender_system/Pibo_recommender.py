@@ -14,7 +14,6 @@ Recommend class related to achievement evaluation
 
 
 ## TODO ##
-accuracy 측정할 거 만들기
 Matrix Factorization 시 factor 개수 조정해서 최적 개수 찾기
 recommender 두 개 parameter 일관성 맞추기
 recommend_preference에서 engagement level predict랑 실제 estimated 구분
@@ -22,7 +21,7 @@ recommend_preference에서 없는 user가 입력으로 들어왔을 때 예외�
 recommend_preference에서 train set으로 나눌지 안나눌지 고민하고 넣든말든
 '''
 
-class recommend_achievement:
+class recommend_SVD:
     '''
     Recommend with explicit recommendation based on achievement evaluation.
     Surprise package is used.
@@ -45,9 +44,9 @@ class recommend_achievement:
         [num_task: number of tasks] = 50
         '''
         if is_file_name:
-            self.__achievement = pd.read_csv(data)
+            self.__data = pd.read_csv(data)
         else:
-            self.__achievement = data
+            self.__data = data
         
         self.__col_parent = col_parent
         self.__col_expert = col_expert
@@ -73,21 +72,21 @@ class recommend_achievement:
         self.__alpha = alpha
         self.__beta = beta
 
-        self.__achievement['NotAchieved'] = 100 - (self.__achievement[self.__col_parent] * self.__alpha +
-                                                   self.__achievement[self.__col_expert] * self.__beta)
+        self.__data['NotAchieved'] = 100 - (self.__data[self.__col_parent] * self.__alpha +
+                                            self.__data[self.__col_expert] * self.__beta)
         # drop duplicated data
-        self.__achievement = self.__achievement.drop_duplicates(['UserID', 'TaskID'], keep='last')
+        self.__data = self.__data.drop_duplicates(['UserID', 'TaskID'], keep='last')
 
         reader = Reader(rating_scale=(0, 100))
 
         # set data
-        data = Dataset.load_from_df(self.__achievement[['UserID', 'TaskID', 'NotAchieved']], reader=reader)
+        data = Dataset.load_from_df(self.__data[['UserID', 'TaskID', 'NotAchieved']], reader=reader)
 
         # split data to train, test
         train, test = train_test_split(data, test_size, random_state=42)
 
         # set model and train with train set
-        self.__model = SVD()
+        self.__model = SVD(K=10)
         self.__model.fit(train)
 
         predictions = self.__model.test(test)
