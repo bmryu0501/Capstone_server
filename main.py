@@ -30,11 +30,11 @@ def handle_client(client_socket):
 
     # update achievement evaluation
     elif command == 'update':
-        juso_db = pymysql.connect(
-            user='capstone2', 
-            passwd='sirlab2020', 
-            host='127.0.0.1', 
-            db='', 
+        db_information = pymysql.connect(
+            user='capstone2',
+            passwd='sirlab2020',
+            host='127.0.0.1',
+            db='',
             charset='utf8'
         )
 
