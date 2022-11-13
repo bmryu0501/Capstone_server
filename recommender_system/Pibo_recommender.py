@@ -9,6 +9,7 @@ import numpy as np
 #import implicit
 #import scipy.sparse as sparse
 import pymysql
+import pickle
 
 '''
 Recommend class related to achievement evaluation
@@ -119,7 +120,9 @@ class recommend_SVD:
         float
             Estimated achievement evaluation
         '''
-        #TODO: load model
+
+        # load model
+        model = pickle.load(open('model_achievement.pkl', 'rb'))
         
         # return depends on the number of tasks to recommend
         if num_task == 1:
@@ -143,7 +146,9 @@ class recommend_SVD:
         float
             Estimated engagement level
         '''
-        #TODO: load model
+        
+        # load model
+        model = pickle.load(open('model_engagement.pkl', 'rb'))
 
         # return depends on the number of tasks to recommend
         if num_task == 1:
@@ -252,6 +257,10 @@ class recommend_SVD:
         self.model_achievement = SVD(n_factors=10)
         # train model
         self.model_achievement.fit(self.__trainset_achievement)
+
+        # save model
+        pickle.dump(self.model_achievement, open('model_achievement.pkl', 'wb'))
+
     
     def update_model_engagement(self):
         '''
@@ -274,6 +283,9 @@ class recommend_SVD:
         self.model_engagement = SVD(n_factors=10)
         # train model
         self.model_engagement.fit(self.__trainset_engagement)
+
+        # save model
+        pickle.dump(self.model_engagement, open('model_engagement.pkl', 'wb'))
 
 
 

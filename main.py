@@ -25,7 +25,7 @@ def handle_client(client_socket):
         recommender = Pibo_recommender.recommend_achievement()
         recommend_task = recommender.recommend(user_id)
         print("recommend_task:", recommend_task)
-        message = recommend_task
+        message = recommend_task # TODO : recommended tasks -> message
         client_socket.sendall(message.encode())
         client_socket.close()
 
@@ -36,6 +36,7 @@ def handle_client(client_socket):
 
     # if command is not recommend or update, close socket
     else:
+        print("command is not recommend or update")
         client_socket.close()
 
 def accept_func(host, port):
