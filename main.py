@@ -52,11 +52,13 @@ def handle_client(client_socket):
         recommender = Pibo_recommender.recommend_SVD()
         recommend_task = recommender.recommend(user_id)
         print("recommend_task:", recommend_task)
-        client_socket.sendall(recommend_task.encode())
+        message = recommend_task # TODO : recommended tasks -> message
+        client_socket.sendall(message.encode())
         client_socket.close()
 
     # update achievement evaluation
     elif command == 'update':
+<<<<<<< HEAD
         db = pymysql.connect( # TODO : parameterize elements
             user='capstone2',
             passwd='sirlab2020',
@@ -84,12 +86,20 @@ def handle_client(client_socket):
             cursor.execute(query, (UID, CID, TID, Score_Parent, Score_Expert))
             db.commit()
             db.close()
+=======
+        # TODO : update achievement evaluation
+        pass
+>>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
 
     # if command is not recommend or update, close socket
     else:
         print("command is not recommend or update")
+<<<<<<< HEAD
     
     client_socket.close()
+=======
+        client_socket.close()
+>>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
 
 def accept_func(host, port):
     global server_socket
