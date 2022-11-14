@@ -16,19 +16,12 @@ Recommend class related to achievement evaluation
 
 
 ## TODO ##
-<<<<<<< HEAD
-Matrix Factorization 시 factor 개수 조정해서 최적 개수 찾기
-recommender 두 개 parameter 일관성 맞추기
-recommend_preference에서 engagement level predict랑 실제 estimated 구분
-recommend_preference에서 없는 user가 입력으로 들어왔을 때 예외처리
-recommend_preference에서 train set으로 나눌지 안나눌지 고민하고 넣든말든
-'''
-
-class recommend_SVD:
-=======
 1. grid_search for hyperparameter tuning
-2. model save/load
-
+2. implement sending success or fail if update is successful or not
+3. implement sending recommended tasks
+4. make prediction table in DB
+   --> update DB when update is called
+   --> load DB when recommend is called and use it to recommend (if needed, choose randomly from top N)
 '''
 
 class recommend_SVD:
@@ -54,17 +47,15 @@ class recommend_SVD:
         self.__alpha = 0.4
         self.__beta = 0.6
 
-
-        # connect to mysql DB
-        self.__connectDB()
-        # set achievement evaluation data
-        self.data_achievement = self.__setAchievement()
-        # set engagement level data
-        self.data_engagement = self.__setEngagement()
-
-        self.__closeDB()
-
         if update:
+            # connect to mysql DB
+            self.__connectDB()
+            # set achievement evaluation data
+            self.data_achievement = self.__setAchievement()
+            # set engagement level data
+            self.data_engagement = self.__setEngagement()
+
+            self.__closeDB()
             # update model
             self.update_model_achievement()
             self.update_model_engagement()
@@ -122,7 +113,7 @@ class recommend_SVD:
         ----------
         user_id : int
             User id
-        num_task : int
+        num_task : int (default=1)
             Number of tasks to recommend
 
         Returns
@@ -135,8 +126,12 @@ class recommend_SVD:
         model = pickle.load(open('model_achievement.pkl', 'rb'))
         
         # return depends on the number of tasks to recommend
+        # recommend single task
         if num_task == 1:
-            pass #TODO: return single task
+            # predict
+            pred = model.predict(user_id, self.__trainset_achievement.all_items())
+            # return estimated achievement evaluation
+            return 
         else:
             pass #TODO: return multiple tasks
 
@@ -148,7 +143,7 @@ class recommend_SVD:
         ----------
         user_id : int
             User id
-        num_task : int
+        num_task : int (default=1)
             Number of tasks to recommend
 
         Returns
@@ -300,7 +295,6 @@ class recommend_SVD:
 
 
 class recommend_achievement:
->>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
     '''
     Recommend with explicit recommendation based on achievement evaluation.
     Surprise package is used.
@@ -365,11 +359,7 @@ class recommend_achievement:
         train, test = train_test_split(data, test_size, random_state=42)
 
         # set model and train with train set
-<<<<<<< HEAD
         self.__model = SVD(K=10)
-=======
-        self.__model = SVD(k=10)
->>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
         self.__model.fit(train)
 
         predictions = self.__model.test(test)
@@ -398,13 +388,7 @@ class recommend_achievement:
     def update():
         pass
 
-<<<<<<< HEAD
-
-"""
-class recommend_preference:
-=======
 class recommend_engagement:
->>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
     '''
     This class recommend task based on engagement level with implicit feedback
 
@@ -492,3 +476,4 @@ class preference_to_engagement_level:
         engagement_level = round(engagement_level)
         self.__df.loc[len(self.__df)] = [len(self.__df), uid, tid] + factors
         self.__df.to_csv(self.__path, index=False)
+"""

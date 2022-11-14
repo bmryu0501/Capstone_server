@@ -33,7 +33,42 @@ def recommend_achievement():
 
 def handle_client(client_socket):
     '''
-    
+    Handle client
+
+    Parameters
+    ----------
+    client_socket : socket object
+        socket object for client
+
+    Returns
+    -------
+    None.
+
+
+    incoming message format:
+    {
+        [0] UID
+        [1] command
+
+        if command == 'recommend':
+            None.
+        elif command == 'update':
+            [2] category
+            if category == 'achievement':
+                [3] parent_score
+                [4] expert_score
+            elif category == 'engagement':
+                [3] engagement_level
+    }
+
+    outgoing message format:
+    {
+        if command == 'recommend':
+            [0] TID recommend based on achievement
+            [1] TID recommend based on engagement
+        elif command == 'update':
+            [0] success or fail #TODO : success or fail implement in Pibo_recommender
+
     '''
     user = client_socket.recv(65535)
     message = user.decode()
@@ -58,48 +93,19 @@ def handle_client(client_socket):
 
     # update achievement evaluation
     elif command == 'update':
-<<<<<<< HEAD
-        db = pymysql.connect( # TODO : parameterize elements
-            user='capstone2',
-            passwd='sirlab2020',
-            db='Capstone_DB',
-            charset='utf8'
-        )
-        talbe_name = message[2]
-        print("talbe_name:", talbe_name)
+        if message[2] == 'achievement':
+            parent_score = int(message[3])
+            expert_score = int(message[4])
+            recommender = Pibo_recommender.recommend_SVD()
+            recommender.update_achievement(user_id, parent_score, expert_score)
+            # TODO : success or fail -> message
 
-        # update achievement evaluation
-        if talbe_name == 'achievement':
-            UID = int(message[3])
-            CID = int(message[4])
-            TID = int(message[5])
-            Score_Parent = int(message[6])
-            Score_Expert = int(message[7])
-            print("UID:", UID)
-            print("CID:", CID)
-            print("TID:", TID)
-            print("Score_Parent:", Score_Parent)
-            print("Score_Expert:", Score_Expert)
-
-            cursor = db.cursor()
-            query = "INSERT INTO achievement (UID, CID, TID, Score_Parent, Score_Expert) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(query, (UID, CID, TID, Score_Parent, Score_Expert))
-            db.commit()
-            db.close()
-=======
-        # TODO : update achievement evaluation
         pass
->>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
 
     # if command is not recommend or update, close socket
     else:
         print("command is not recommend or update")
-<<<<<<< HEAD
-    
-    client_socket.close()
-=======
         client_socket.close()
->>>>>>> 9f712f097eea6c71f94b6d6ef40eb69c120b3935
 
 def accept_func(host, port):
     global server_socket
