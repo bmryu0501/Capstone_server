@@ -294,6 +294,7 @@ class recommend_SVD:
 
 
 
+""" Old version
 class recommend_achievement:
     '''
     Recommend with explicit recommendation based on achievement evaluation.
@@ -450,10 +451,10 @@ class recommend_engagement:
             ret.append(self.__tasks.index(i[0]))
         if num_recommend == 1:
             return ret[0]
-        return ret[:num_recommend]
-"""
-        
+        return ret[:num_recommend]"""
 
+
+"""
 class preference_to_engagement_level:
     '''
     This class estimate engagement level using linear regression
