@@ -3,9 +3,9 @@ import pandas as pd
 from surprise import Dataset, Reader, SVD, accuracy
 from surprise.model_selection import train_test_split
 #from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-import os
-import numpy as np
+#from sklearn.linear_model import LinearRegression
+#import os
+#import numpy as np
 #import implicit
 #import scipy.sparse as sparse
 import pymysql

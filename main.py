@@ -2,8 +2,6 @@ from recommender_system import Pibo_recommender
 import argparse
 import socket
 import threading
-import pymysql
-import pandas as pd
 
 '''
 TODO
