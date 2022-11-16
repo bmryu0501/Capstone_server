@@ -5,7 +5,42 @@ import threading
 
 def handle_client(client_socket: socket.socket):
     '''
-    
+    Handle client
+
+    Parameters
+    ----------
+    client_socket : socket object
+        socket object for client
+
+    Returns
+    -------
+    None.
+
+
+    incoming message format:
+    {
+        [0] UID
+        [1] command
+
+        if command == 'recommend':
+            None.
+        elif command == 'update':
+            [2] category
+            if category == 'achievement':
+                [3] parent_score
+                [4] expert_score
+            elif category == 'engagement':
+                [3] engagement_level
+    }
+
+    outgoing message format:
+    {
+        if command == 'recommend':
+            [0] TID recommend based on achievement
+            [1] TID recommend based on engagement
+        elif command == 'update':
+            [0] success or fail #TODO : success or fail implement in Pibo_recommender
+
     '''
     user = client_socket.recv(65535)
     message = user.decode()
@@ -18,7 +53,7 @@ def handle_client(client_socket: socket.socket):
     command = message[1]
     print("command:", command)
 
-    
+    ### command execution ###
     # recommend task to user
     if command == 'recommend':
         recommender = Pibo_recommender.recommend_SVD()
@@ -34,7 +69,13 @@ def handle_client(client_socket: socket.socket):
 
     # update achievement evaluation
     elif command == 'update':
-        # TODO : update achievement evaluation
+        if message[2] == 'achievement':
+            parent_score = int(message[3])
+            expert_score = int(message[4])
+            recommender = Pibo_recommender.recommend_SVD()
+            recommender.update_achievement(user_id, parent_score, expert_score)
+            # TODO : success or fail -> message
+
         pass
 
     # if command is not recommend or update, close socket
