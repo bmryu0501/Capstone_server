@@ -117,6 +117,7 @@ def accept_func(host, port):
 
 
 if __name__ == '__main__':
+    """
     argparse = argparse.ArgumentParser(description="\nrecommender system\n-h host\n-p port\n-m message\n")
     argparse.add_argument('-h', help="host")
     argparse.add_argument('-p', help="port")
@@ -129,6 +130,9 @@ if __name__ == '__main__':
         message = args.m
     except:
         pass
+    """
+    host = "ec2-13-209-85-23.ap-northeast-2.compute.amazonaws.com"
+    port = 8080
     
     accept_func(host, port)
 
