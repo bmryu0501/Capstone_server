@@ -3,6 +3,8 @@ import argparse
 import socket
 import threading
 
+# TODO: make DB update condition
+
 def handle_client(client_socket: socket.socket):
     '''
     Handle client
@@ -88,7 +90,7 @@ def handle_client(client_socket: socket.socket):
             task_id = int(message[4])
             engagement_score = int(message[5])
             engagement_level = int(message[6])
-            
+
             recommender = Pibo_recommender.recommend_SVD()
             recommender.update_engagement(user_id, task_id, engagement_score, engagement_level)
             # TODO : success or fail -> message
@@ -147,36 +149,11 @@ if __name__ == '__main__':
     except:
         pass
     """
+
     host = "ec2-13-209-85-23.ap-northeast-2.compute.amazonaws.com"
     port = 8080
     
-    accept_func(host, port)
-
-
-    
-
-
-
-
-'''
-## SAVING TRAINED MODEL
-from surprise import dump
-import os
-model_filename = "./model.pickle"
-print (">> Starting dump")
-# Dump algorithm and reload it.
-file_name = os.path.expanduser(model_filename)
-dump.dump(file_name, algo=algo)
-print (">> Dump done")
-print(model_filename)
-
-## LOAD SAVED MODEL
-def load_model(model_filename):
-    print (">> Loading dump")
-    from surprise import dump
-    import os
-    file_name = os.path.expanduser(model_filename)
-    _, loaded_model = dump.load(file_name)
-    print (">> Loaded dump")
-    return loaded_model
-'''
+    #accept_func(host, port)
+    recommender = Pibo_recommender.recommend_SVD()
+    recommender.update_model_achievement()
+    #recommender.update_model_engagement()

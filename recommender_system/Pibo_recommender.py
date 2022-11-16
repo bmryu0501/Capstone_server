@@ -254,8 +254,8 @@ class recommend_SVD:
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Not_Achieved'])
-        for user_id in self.data_achievement['UID'].unique():
-            for task_id in self.data_achievement['TID'].unique():
+        for user_id in self.data_achievement['UID']:
+            for task_id in self.data_achievement['TID']:
                 # predict
                 pred = self.model_achievement.predict(user_id, task_id).est
                 # append to predictions
@@ -305,8 +305,8 @@ class recommend_SVD:
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Engagement_Level'])
-        for user_id in self.data_engagement['UID'].unique():
-            for task_id in self.data_engagement['TID'].unique():
+        for user_id in self.data_engagement['UID']:
+            for task_id in self.data_engagement['TID']:
                 # predict
                 pred = self.model_engagement.predict(user_id, task_id).est
                 # append to predictions
@@ -374,6 +374,7 @@ class recommend_SVD:
         # close mysql DB
         self.__closeDB()
 
+""" Old code
 class recommend_achievement:
     '''
     Recommend with explicit recommendation based on achievement evaluation.
@@ -468,7 +469,7 @@ class recommend_achievement:
     def update():
         pass
 
-""" Old code
+
 # recommendation for implicit feedback
 
 import scipy.sparse as sparse
