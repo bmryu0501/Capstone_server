@@ -244,20 +244,20 @@ class recommend_SVD:
         
 
         # split data into train set and test set
-        self.__trainset_achievement, self.__testset_achievement = train_test_split(self.data_achievement, test_size=.25)
+        trainset_achievement, testset_achievement = train_test_split(self.data_achievement, test_size=.25)
         self.__closeDB()
 
         # set model
-        self.model_achievement = SVD(n_factors=10)
+        model_achievement = SVD(n_factors=10)
         # train model
-        self.model_achievement.fit(self.__trainset_achievement)
+        model_achievement.fit(trainset_achievement)
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Not_Achieved'])
         for user_id in self.data_achievement['UID']:
             for task_id in self.data_achievement['TID']:
                 # predict
-                pred = self.model_achievement.predict(user_id, task_id).est
+                pred = model_achievement.predict(user_id, task_id).est
                 # append to predictions
                 predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Not_Achieved': pred}, ignore_index=True)
 
