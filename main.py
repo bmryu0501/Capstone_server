@@ -19,18 +19,23 @@ def handle_client(client_socket: socket.socket):
 
     incoming message format:
     {
-        [0] UID
-        [1] command
+        [0] command
+        [1] user_id
 
         if command == 'recommend':
             None.
         elif command == 'update':
             [2] category
             if category == 'achievement':
-                [3] parent_score
-                [4] expert_score
+                [3] category_id
+                [4] task_id
+                [5] parent_score
+                [6] expert_score
             elif category == 'engagement':
-                [3] engagement_level
+                [3] category_id
+                [4] task_id
+                [5] engagment_score
+                [6] engagement_level
     }
 
     outgoing message format:
@@ -48,10 +53,10 @@ def handle_client(client_socket: socket.socket):
     # message parsing
     message = message.split(' ')
     print("message:", message)
-    user_id = int(message[0])
-    print("user_id:", user_id)
-    command = message[1]
+    command = message[0]
     print("command:", command)
+    user_id = int(message[1])
+    print("user_id:", user_id)
 
     ### command execution ###
     # recommend task to user
@@ -70,12 +75,23 @@ def handle_client(client_socket: socket.socket):
     # update achievement evaluation
     elif command == 'update':
         if message[2] == 'achievement':
-            parent_score = int(message[3])
-            expert_score = int(message[4])
-            recommender = Pibo_recommender.recommend_SVD()
-            recommender.update_achievement(user_id, parent_score, expert_score)
-            # TODO : success or fail -> message
+            category_id = int(message[3])
+            task_id = int(message[4])
+            parent_score = int(message[5])
+            expert_score = int(message[6])
 
+            recommender = Pibo_recommender.recommend_SVD()
+            recommender.update_achievement(user_id, category_id, task_id, parent_score, expert_score)
+            # TODO : success or fail -> message
+        elif message[2] == 'engagement':
+            category_id = int(message[3])
+            task_id = int(message[4])
+            engagement_score = int(message[5])
+            engagement_level = int(message[6])
+            
+            recommender = Pibo_recommender.recommend_SVD()
+            recommender.update_engagement(user_id, task_id, engagement_score, engagement_level)
+            # TODO : success or fail -> message
         pass
 
     # if command is not recommend or update, close socket

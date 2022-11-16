@@ -318,6 +318,62 @@ class recommend_SVD:
         predictions.to_sql(name='engagement_predicted', con=engine, if_exists='replace', index=False)
         conn.close()
 
+    def update_achievement(self, user_id, category_id, task_id, score_parent, score_expert):
+        '''
+        Update achievement data
+
+        Parameters
+        ----------
+        uid : int
+            User ID
+        tid : int
+            Task ID
+        score_parent : int
+            Parent score
+        score_expert : int
+            Expert score
+
+        Returns
+        -------
+        None
+        '''
+        # connect to mysql DB
+        self.__connectDB()
+        # insert data into mysql DB    
+        sql = "INSERT INTO achievement (UID, CID, TID, Score_Parent, Score_Expert) VALUES (%f, %f, %f, %f, %f)"
+        self.curs.execute(sql, (user_id, category_id, task_id, score_parent, score_expert))
+        self.conn.commit()
+        # close mysql DB
+        self.__closeDB()
+
+    def update_engagement(self, user_id, category_id, task_id, engagement_score, engagement_level):
+        '''
+        Update engagement data
+
+        Parameters
+        ----------
+        user_id : int
+            User ID
+        task_id : int
+            Task ID
+        engagement_score : int
+            Engagement score
+        engagement_level : int
+            Engagement level
+
+        Returns
+        -------
+        None
+        '''
+        # connect mysql DB
+        self.__connectDB()
+        # insert data into mysql DB
+        sql = "INSERT INTO engagement (UID, Category_ID, TID, Engagement_Score, Engagement_Level) VALUES (%f, %f, %f, %f, %f)"
+        self.curs.execute(sql, (user_id, category_id, task_id, engagement_score, engagement_level))
+        self.conn.commit()
+        # close mysql DB
+        self.__closeDB()
+
 class recommend_achievement:
     '''
     Recommend with explicit recommendation based on achievement evaluation.
