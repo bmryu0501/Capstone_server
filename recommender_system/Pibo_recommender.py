@@ -5,15 +5,14 @@ from surprise.model_selection import train_test_split
 #from sklearn.model_selection import train_test_split
 #from sklearn.linear_model import LinearRegression
 #import os
-#import numpy as np
+import numpy as np
 #import implicit
 #import scipy.sparse as sparse
 import pymysql
 from sqlalchemy import create_engine
 
 '''
-Recommend class related to achievement evaluation
-
+Recommend class for pibo recommender system
 
 ## TODO ##
 1. grid_search for hyperparameter tuning
@@ -50,10 +49,10 @@ class recommend_SVD:
         # set engagement level data
         self.data_engagement_predicted = self.__setEngagement_predicted()
 
-            self.__closeDB()
-            # update model
-            self.update_model_achievement()
-            self.update_model_engagement()
+        self.__closeDB()
+        # update model
+        self.update_model_achievement()
+        self.update_model_engagement()
 
 
 
