@@ -240,11 +240,10 @@ class recommend_SVD:
         reader = Reader(rating_scale=(0, 100))
         # set data
         self.data_achievement = Dataset.load_from_df(self.data_achievement[['UID', 'TID', 'Not_Achieved']], reader=reader)
-        # set data
-        data = Dataset.load_from_df(self.data_achievement, reader)
+        
 
         # split data into train set and test set
-        self.__trainset_achievement, self.__testset_achievement = train_test_split(data, test_size=.25)
+        self.__trainset_achievement, self.__testset_achievement = train_test_split(self.data_achievement, test_size=.25)
         self.__closeDB()
 
         # set model
@@ -292,10 +291,10 @@ class recommend_SVD:
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
-        self.data = Dataset.load_from_df(self.data_engagement[['UID', 'TID', 'Engagement_Level']], reader=reader)
+        self.data_engagement = Dataset.load_from_df(self.data_engagement[['UID', 'TID', 'Engagement_Level']], reader=reader)
 
         # split data into train set and test set
-        self.__trainset_engagement, self.__testset_engagement = train_test_split(self.data, test_size=.25)
+        self.__trainset_engagement, self.__testset_engagement = train_test_split(self.data_engagement, test_size=.25)
         self.__closeDB()
 
         # set model
