@@ -51,8 +51,9 @@ class recommend_SVD:
 
         self.__closeDB()
         # update model
-        self.update_model_achievement()
-        self.update_model_engagement()
+        if update:
+            self.update_model_achievement()
+            self.update_model_engagement()
 
 
 
