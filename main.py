@@ -2,9 +2,8 @@ from recommender_system import Pibo_recommender
 import argparse
 import socket
 import threading
-import pymysql
 
-def handle_client(client_socket):
+def handle_client(client_socket: socket.socket):
     '''
     
     '''
@@ -22,10 +21,14 @@ def handle_client(client_socket):
     
     # recommend task to user
     if command == 'recommend':
-        recommender = Pibo_recommender.recommend_achievement()
-        recommend_task = recommender.recommend(user_id)
-        print("recommend_task:", recommend_task)
-        message = recommend_task # TODO : recommended tasks -> message
+        recommender = Pibo_recommender.recommend_SVD()
+        recommended_tasks = []
+        recommended_tasks.append(recommender.recommend_achievement(user_id))
+        recommended_tasks.append(recommender.recommend_engagement(user_id))
+        
+
+        print("recommend_task:", recommended_tasks)
+        message = recommended_tasks # TODO : reform message
         client_socket.sendall(message.encode())
         client_socket.close()
 

@@ -9,7 +9,7 @@ import numpy as np
 #import implicit
 #import scipy.sparse as sparse
 import pymysql
-import pickle
+from sqlalchemy import create_engine
 
 '''
 Recommend class related to achievement evaluation
@@ -17,8 +17,6 @@ Recommend class related to achievement evaluation
 
 ## TODO ##
 1. grid_search for hyperparameter tuning
-2. model save/load
-
 '''
 
 class recommend_SVD:
@@ -48,9 +46,9 @@ class recommend_SVD:
         # connect to mysql DB
         self.__connectDB()
         # set achievement evaluation data
-        self.data_achievement = self.__setAchievement()
+        self.data_achievement_predicted = self.__setAchievement_predicted()
         # set engagement level data
-        self.data_engagement = self.__setEngagement()
+        self.data_engagement_predicted = self.__setEngagement_predicted()
 
         self.__closeDB()
 
@@ -120,15 +118,18 @@ class recommend_SVD:
         float
             Estimated achievement evaluation
         '''
+        # make ranking list of tasks for user_id
+        ranking_list = []
+        for task_id in self.data_achievement_predicted['TID'].unique():
+            ranking_list.append(self.model_achievement.predict(user_id, task_id).est)
+        ranking_list = np.array(ranking_list)
+        ranking_list = ranking_list.argsort()[::-1]
 
-        # load model
-        model = pickle.load(open('model_achievement.pkl', 'rb'))
-        
         # return depends on the number of tasks to recommend
         if num_task == 1:
-            pass #TODO: return single task
+            return ranking_list[0]
         else:
-            pass #TODO: return multiple tasks
+            return ranking_list[:num_task]
 
     def recommend_engagement(self, user_id, num_task=1):
         '''
@@ -146,17 +147,20 @@ class recommend_SVD:
         float
             Estimated engagement level
         '''
+        # make ranking list of tasks for user_id
+        ranking_list = []
+        for task_id in self.data_engagement_predicted['TID'].unique():
+            ranking_list.append(self.model_engagement.predict(user_id, task_id).est)
+        ranking_list = np.array(ranking_list)
+        ranking_list = ranking_list.argsort()[::-1]
         
-        # load model
-        model = pickle.load(open('model_engagement.pkl', 'rb'))
-
         # return depends on the number of tasks to recommend
         if num_task == 1:
-            pass #TODO: return single task
-        else: 
-            pass #TODO: return multiple tasks
+            return ranking_list[0]
+        else:
+            return ranking_list[:num_task]
 
-    def __setAchievement(self):
+    def __setAchievement_predicted(self):
         '''
         Set achievement evaluation data
 
@@ -166,29 +170,15 @@ class recommend_SVD:
 
         Returns
         -------
-        None
+        data_achievement_predicted : pandas.DataFrame
+            Achievement evaluation data
         '''
-        # load data from mysql DB
-        sql = "SELECT * FROM achievement"
+        sql = "SELECT * FROM achievement_predicted"
         self.curs.execute(sql)
-        self.data_achievement = pd.DataFrame(self.curs.fetchall())
+        return pd.DataFrame(self.curs.fetchall())
+        
 
-        # preprocess data
-        self.data_achievement['NotAchieved'] = 100 - (self.data_achievement['Score_Parent'] * self.__alpha +
-                                                      self.data_achievement['Score_Expert'] * self.__beta)
-        # drop duplicated data
-        self.data_achievement = self.data_achievement.drop_duplicates(['UID', 'TID'], keep='last')
-        # set reader
-        reader = Reader(rating_scale=(0, 100))
-        # set data
-        self.data_achievement = Dataset.load_from_df(self.data_achievement[['UID', 'TID', 'NotAchieved']], reader=reader)
-        # set data
-        data = Dataset.load_from_df(self.data_achievement, reader)
-
-        # split data into train set and test set
-        self.__trainset_achievement, self.__testset_achievement = train_test_split(data, test_size=.25)
-
-    def __setEngagement(self):
+    def __setEngagement_predicted(self):
         '''
         Set engagement level data
 
@@ -198,24 +188,12 @@ class recommend_SVD:
 
         Returns
         -------
-        None
+        data_engagement_predicted : pandas.DataFrame
+            Engagement level data
         '''
-
-        # load data from mysql DB
-        sql = "SELECT * FROM engagement"
+        sql = "SELECT * FROM engagement_predicted"
         self.curs.execute(sql)
-        self.data_engagement = pd.DataFrame(self.curs.fetchall())
-        
-        # preprocess data
-        # drop duplicated data
-        self.data_engagement = self.data_engagement.drop_duplicates(['UID', 'TID'], keep='last')
-        # set reader
-        reader = Reader(rating_scale=(0, 100))
-        # set data
-        self.data = Dataset.load_from_df(self.data_engagement[['UID', 'TID', 'Engagement_Level']], reader=reader)
-
-        # split data into train set and test set
-        self.__trainset_engagement, self.__testset_engagement = train_test_split(self.data, test_size=.25)
+        return pd.DataFrame(self.curs.fetchall())
 
     def set_alpha_beta(self, alpha, beta):
         '''
@@ -248,18 +226,48 @@ class recommend_SVD:
         -------
         None
         '''
-        # update data
-        self.connectDB()
-        self.setAchievement()
-        self.closeDB()
+        # load achievement data from mysql DB
+        self.__connectDB()
+        # load data from mysql DB
+        sql = "SELECT * FROM achievement"
+        self.curs.execute(sql)
+        self.data_achievement = pd.DataFrame(self.curs.fetchall())
+
+        # preprocess data
+        self.data_achievement['Not_Achieved'] = 100 - (self.data_achievement['Score_Parent'] * self.__alpha +
+                                                      self.data_achievement['Score_Expert'] * self.__beta)
+        # drop duplicated data
+        self.data_achievement = self.data_achievement.drop_duplicates(['UID', 'TID'], keep='last')
+        # set reader
+        reader = Reader(rating_scale=(0, 100))
+        # set data
+        self.data_achievement = Dataset.load_from_df(self.data_achievement[['UID', 'TID', 'Not_Achieved']], reader=reader)
+        # set data
+        data = Dataset.load_from_df(self.data_achievement, reader)
+
+        # split data into train set and test set
+        self.__trainset_achievement, self.__testset_achievement = train_test_split(data, test_size=.25)
+        self.__closeDB()
 
         # set model
         self.model_achievement = SVD(n_factors=10)
         # train model
         self.model_achievement.fit(self.__trainset_achievement)
 
-        # save model
-        pickle.dump(self.model_achievement, open('model_achievement.pkl', 'wb'))
+        # predict for every user and task
+        predictions = pd.DataFrame(columns=['UID', 'TID', 'Not_Achieved'])
+        for user_id in self.data_achievement['UID'].unique():
+            for task_id in self.data_achievement['TID'].unique():
+                # predict
+                pred = self.model_achievement.predict(user_id, task_id).est
+                # append to predictions
+                predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Not_Achieved': pred}, ignore_index=True)
+
+        # update predicted data in mysql DB
+        engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')
+        conn = engine.connect()
+        predictions.to_sql(name='achievement_predicted', con=engine, if_exists='replace', index=False)
+        conn.close()
 
     
     def update_model_engagement(self):
@@ -274,20 +282,43 @@ class recommend_SVD:
         -------
         None
         '''
-        # update data
-        self.connectDB()
-        self.setEngagement()
-        self.closeDB()
+        # load engagement data from mysql DB
+        self.__connectDB()
+        sql = "SELECT * FROM engagement"
+        self.curs.execute(sql)
+        self.data_engagement = pd.DataFrame(self.curs.fetchall())
+        
+        # preprocess data
+        # drop duplicated data
+        self.data_engagement = self.data_engagement.drop_duplicates(['UID', 'TID'], keep='last')
+        # set reader
+        reader = Reader(rating_scale=(0, 100))
+        # set data
+        self.data = Dataset.load_from_df(self.data_engagement[['UID', 'TID', 'Engagement_Level']], reader=reader)
+
+        # split data into train set and test set
+        self.__trainset_engagement, self.__testset_engagement = train_test_split(self.data, test_size=.25)
+        self.__closeDB()
 
         # set model
         self.model_engagement = SVD(n_factors=10)
         # train model
         self.model_engagement.fit(self.__trainset_engagement)
 
-        # save model
-        pickle.dump(self.model_engagement, open('model_engagement.pkl', 'wb'))
+        # predict for every user and task
+        predictions = pd.DataFrame(columns=['UID', 'TID', 'Engagement_Level'])
+        for user_id in self.data_engagement['UID'].unique():
+            for task_id in self.data_engagement['TID'].unique():
+                # predict
+                pred = self.model_engagement.predict(user_id, task_id).est
+                # append to predictions
+                predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Engagement_Level': pred}, ignore_index=True)
 
-
+        # update predicted data in mysql DB
+        engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')
+        conn = engine.connect()
+        predictions.to_sql(name='engagement_predicted', con=engine, if_exists='replace', index=False)
+        conn.close()
 
 class recommend_achievement:
     '''
@@ -383,6 +414,11 @@ class recommend_achievement:
     def update():
         pass
 
+""" Old code
+# recommendation for implicit feedback
+
+import scipy.sparse as sparse
+import implicit
 class recommend_engagement:
     '''
     This class recommend task based on engagement level with implicit feedback
@@ -471,3 +507,5 @@ class preference_to_engagement_level:
         engagement_level = round(engagement_level)
         self.__df.loc[len(self.__df)] = [len(self.__df), uid, tid] + factors
         self.__df.to_csv(self.__path, index=False)
+
+"""
