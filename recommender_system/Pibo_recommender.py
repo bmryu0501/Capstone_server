@@ -119,10 +119,12 @@ class recommend_SVD:
         # make ranking list of tasks for user_id from achievement_predicted table
         ranking_list = []
         
-        for row in self.data_achievement_predicted[self.data_achievement_predicted['UID'] == user_id].iterrows():
-            ranking_list.append(row[1]['TID'])
+        for row in self.data_achievement_predicted:
+            if row[0] == user_id:
+                ranking_list.append((row[0], row[1]))
         ranking_list = np.array(ranking_list)
-        ranking_list = ranking_list.argsort()[::-1]
+        # sort by ranking_list[n][1]
+        ranking_list = ranking_list[ranking_list[:, 1].argsort()[::-1]]
         
 
         # return depends on the number of tasks to recommend
@@ -150,14 +152,17 @@ class recommend_SVD:
         '''
         # make ranking list of tasks for user_id
         ranking_list = []
-        for row in self.data_engagement_predicted[self.data_engagement_predicted['UID'] == user_id].iterrows():
-            ranking_list.append(row[1]['TID'])
+        for row in self.data_engagement_predicted:
+            if row[0] == user_id:
+                ranking_list.append((row[0], row[1]))
         ranking_list = np.array(ranking_list)
-        ranking_list = ranking_list.argsort()[::-1]
+        # sort by ranking_list[n][1]
+        ranking_list = ranking_list[ranking_list[:, 1].argsort()[::-1]]
+
         
         # return depends on the number of tasks to recommend
         if num_task == 1:
-            return ranking_list[0]
+            return ranking_list[0][0]
         else:
             return ranking_list[:num_task]
 
