@@ -116,12 +116,14 @@ class recommend_SVD:
         float
             Estimated achievement evaluation
         '''
-        # make ranking list of tasks for user_id
+        # make ranking list of tasks for user_id from achievement_predicted table
         ranking_list = []
-        for task_id in self.data_achievement_predicted['TID'].unique():
-            ranking_list.append(self.model_achievement.predict(user_id, task_id).est)
+        
+        for row in self.data_achievement_predicted[self.data_achievement_predicted['UID'] == user_id].iterrows():
+            ranking_list.append(row[1]['TID'])
         ranking_list = np.array(ranking_list)
         ranking_list = ranking_list.argsort()[::-1]
+        
 
         # return depends on the number of tasks to recommend
         # recommend single task
@@ -148,8 +150,8 @@ class recommend_SVD:
         '''
         # make ranking list of tasks for user_id
         ranking_list = []
-        for task_id in self.data_engagement_predicted['TID'].unique():
-            ranking_list.append(self.model_engagement.predict(user_id, task_id).est)
+        for row in self.data_engagement_predicted[self.data_engagement_predicted['UID'] == user_id].iterrows():
+            ranking_list.append(row[1]['TID'])
         ranking_list = np.array(ranking_list)
         ranking_list = ranking_list.argsort()[::-1]
         
@@ -315,7 +317,7 @@ class recommend_SVD:
                 pred = self.model_engagement.predict(user_id, task_id).est
                 # concat to predictions
                 predictions = pd.concat([predictions, pd.DataFrame([[user_id, task_id, pred]], columns=['UID', 'TID', 'Engagement_Level'])])
-                
+
         # update predicted data in mysql DB
         engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')
         conn = engine.connect()
