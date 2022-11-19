@@ -153,7 +153,7 @@ if __name__ == '__main__':
     host = "ec2-13-209-85-23.ap-northeast-2.compute.amazonaws.com"
     port = 8080
     
-    #accept_func(host, port)
-    recommender = Pibo_recommender.recommend_SVD()
-    recommender.update_model_achievement()
+    accept_func(host, port)
+    #recommender = Pibo_recommender.recommend_SVD()
+    #recommender.update_model_achievement()
     #recommender.update_model_engagement()
