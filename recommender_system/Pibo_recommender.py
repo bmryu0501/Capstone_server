@@ -123,7 +123,7 @@ class recommend_SVD:
             if row[0] == user_id:
                 ranking_list.append((row[0], row[1]))
         ranking_list = np.array(ranking_list)
-        ranking_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        ranking_list.sort(axis=1)
         
 
         # return depends on the number of tasks to recommend
@@ -155,7 +155,7 @@ class recommend_SVD:
             if row[0] == user_id:
                 ranking_list.append((row[0], row[1]))
         ranking_list = np.array(ranking_list)
-        ranking_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        ranking_list.sort(axis=1)
 
         
         # return depends on the number of tasks to recommend
