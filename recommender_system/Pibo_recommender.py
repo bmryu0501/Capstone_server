@@ -260,8 +260,8 @@ class recommend_SVD:
             for task_id in task_list:
                 # predict
                 pred = self.model_achievement.predict(user_id, task_id).est
-                # append to predictions
-                predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Not_Achieved': pred}, ignore_index=True)
+                # concat to predictions
+                predictions = pd.concat([predictions, pd.DataFrame([[user_id, task_id, pred]], columns=['UID', 'TID', 'Not_Achieved'])])
 
         # update predicted data in mysql DB
         engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')
@@ -313,9 +313,9 @@ class recommend_SVD:
             for task_id in task_list:
                 # predict
                 pred = self.model_engagement.predict(user_id, task_id).est
-                # append to predictions
-                predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Engagement_Level': pred}, ignore_index=True)
-
+                # concat to predictions
+                predictions = pd.concat([predictions, pd.DataFrame([[user_id, task_id, pred]], columns=['UID', 'TID', 'Engagement_Level'])])
+                
         # update predicted data in mysql DB
         engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')
         conn = engine.connect()
