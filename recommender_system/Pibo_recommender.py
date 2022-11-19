@@ -237,6 +237,8 @@ class recommend_SVD:
                                                       self.data_achievement['Score_Expert'] * self.__beta)
         # drop duplicated data
         self.data_achievement = self.data_achievement.drop_duplicates(['UID', 'TID'], keep='last')
+        user_list = self.data_achievement['UID'].unique()
+        task_list = self.data_achievement['TID'].unique()
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
@@ -244,20 +246,20 @@ class recommend_SVD:
         
 
         # split data into train set and test set
-        trainset_achievement, testset_achievement = train_test_split(self.data_achievement, test_size=.25)
+        self.__trainset_achievement, self.__testset_achievement = train_test_split(self.data_achievement, test_size=.25)
         self.__closeDB()
 
         # set model
-        model_achievement = SVD(n_factors=10)
+        self.model_achievement = SVD(n_factors=10)
         # train model
-        model_achievement.fit(trainset_achievement)
+        self.model_achievement.fit(self.__trainset_achievement)
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Not_Achieved'])
-        for user_id in self.data_achievement['UID']:
-            for task_id in self.data_achievement['TID']:
+        for user_id in user_list:
+            for task_id in task_list:
                 # predict
-                pred = model_achievement.predict(user_id, task_id).est
+                pred = self.model_achievement.predict(user_id, task_id).est
                 # append to predictions
                 predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Not_Achieved': pred}, ignore_index=True)
 
@@ -289,6 +291,8 @@ class recommend_SVD:
         # preprocess data
         # drop duplicated data
         self.data_engagement = self.data_engagement.drop_duplicates(['UID', 'TID'], keep='last')
+        user_list = self.data_engagement['UID'].unique()
+        task_list = self.data_engagement['TID'].unique()
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
@@ -305,8 +309,8 @@ class recommend_SVD:
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Engagement_Level'])
-        for user_id in self.data_engagement['UID']:
-            for task_id in self.data_engagement['TID']:
+        for user_id in user_list:
+            for task_id in task_list:
                 # predict
                 pred = self.model_engagement.predict(user_id, task_id).est
                 # append to predictions
