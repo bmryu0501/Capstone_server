@@ -121,7 +121,7 @@ class recommend_SVD:
         
         for row in self.data_achievement_predicted:
             if row[0] == user_id:
-                ranking_list.append((row[0], row[1]))
+                ranking_list.append(np.array[row[0], row[1]])
         ranking_list = np.array(ranking_list)
         ranking_list.sort(axis=1)
         
@@ -153,7 +153,7 @@ class recommend_SVD:
         ranking_list = []
         for row in self.data_engagement_predicted:
             if row[0] == user_id:
-                ranking_list.append((row[0], row[1]))
+                ranking_list.append([row[0], row[1]])
         ranking_list = np.array(ranking_list)
         ranking_list.sort(axis=1)
 
