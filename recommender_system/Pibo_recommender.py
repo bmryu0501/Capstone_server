@@ -123,15 +123,16 @@ class recommend_SVD:
             if row[0] == user_id:
                 ranking_list.append(np.array[row[0], row[1]])
         ranking_list = np.array(ranking_list)
-        ranking_list.sort(axis=1)
+        # sort ranking list by estimated achievement evaluation
+        ranking_list = ranking_list[ranking_list[:, 1].argsort()]
         
 
         # return depends on the number of tasks to recommend
         # recommend single task
         if num_task == 1:
-            return ranking_list[0]
+            return ranking_list[0][0]
         else:
-            return ranking_list[:num_task]
+            return ranking_list[:num_task][0]
 
     def recommend_engagement(self, user_id, num_task=1):
         '''
@@ -155,8 +156,8 @@ class recommend_SVD:
             if row[0] == user_id:
                 ranking_list.append([row[0], row[1]])
         ranking_list = np.array(ranking_list)
-        ranking_list.sort(axis=1)
-
+        # sort ranking list by estimated engagement level
+        ranking_list = ranking_list[ranking_list[:, 1].argsort()]
         
         # return depends on the number of tasks to recommend
         if num_task == 1:
