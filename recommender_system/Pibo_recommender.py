@@ -123,8 +123,7 @@ class recommend_SVD:
             if row[0] == user_id:
                 ranking_list.append((row[0], row[1]))
         ranking_list = np.array(ranking_list)
-        # sort by ranking_list[n][1]
-        ranking_list = ranking_list[ranking_list[:, 1].argsort()[::-1]]
+        ranking_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
         
 
         # return depends on the number of tasks to recommend
@@ -156,15 +155,14 @@ class recommend_SVD:
             if row[0] == user_id:
                 ranking_list.append((row[0], row[1]))
         ranking_list = np.array(ranking_list)
-        # sort by ranking_list[n][1]
-        ranking_list = ranking_list[ranking_list[:, 1].argsort()[::-1]]
+        ranking_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
 
         
         # return depends on the number of tasks to recommend
         if num_task == 1:
             return ranking_list[0][0]
         else:
-            return ranking_list[:num_task]
+            return ranking_list[:num_task][0]
 
     def __setAchievement_predicted(self):
         '''
