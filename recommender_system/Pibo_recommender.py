@@ -118,20 +118,20 @@ class recommend_SVD:
         '''
         # make ranking list of tasks for user_id from achievement_predicted table
         ranking_list = []
-        
-        for row in self.data_achievement_predicted:
-            if row[0] == user_id:
-                ranking_list.append(np.array[row[0], row[1]])
-        ranking_list.sort(key=lambda x: x[1])
-        #print shape of ranking_list
-        print(ranking_list)   
 
-        # return depends on the number of tasks to recommend
-        # recommend single task
+        for idx, row in self.data_achievement_predicted.iterrows():
+            if row['UID'] == user_id:
+                ranking_list.append([row['TID'], row['Score_Predicted']])
+        # sort by score descending
+        ranking_list.sort(key=lambda x: x[1], reverse=True)
+
+        # return top task_id depends on the number of tasks to recommend
         if num_task == 1:
             return ranking_list[0][0]
         else:
-            return ranking_list[:num_task][0]
+            return ranking_list[:num_task]
+
+        
 
     def recommend_engagement(self, user_id, num_task=1):
         '''
@@ -151,16 +151,17 @@ class recommend_SVD:
         '''
         # make ranking list of tasks for user_id
         ranking_list = []
-        for row in self.data_engagement_predicted:
-            if row[0] == user_id:
-                ranking_list.append([row[0], row[1]])
-        ranking_list.sort(key=lambda x: x[1])
+        for idx, row in self.data_engagement_predicted.iterrows():
+            if row['UID'] == user_id:
+                ranking_list.append([row['TID'], row['Score_Predicted']])
+        # sort by score descending
+        ranking_list.sort(key=lambda x: x[1], reverse=True)
         
         # return depends on the number of tasks to recommend
         if num_task == 1:
             return ranking_list[0][0]
         else:
-            return ranking_list[:num_task][0]
+            return ranking_list[:num_task]
 
     def __setAchievement_predicted(self):
         '''
