@@ -124,7 +124,7 @@ class recommend_SVD:
                 ranking_list.append(np.array[row[0], row[1]])
         ranking_list.sort(key=lambda x: x[1])
         #print shape of ranking_list
-        print(ranking_list.shape)   
+        print(len(ranking_list))   
 
         # return depends on the number of tasks to recommend
         # recommend single task
