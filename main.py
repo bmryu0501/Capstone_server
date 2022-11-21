@@ -70,7 +70,7 @@ def handle_client(client_socket: socket.socket):
         
 
         print("recommend_task:", recommended_tasks)
-        message = recommended_tasks # TODO : reform message
+        message = str(recommended_tasks) # TODO : reform message
         client_socket.sendall(message.encode())
         client_socket.close()
 
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     host = "ec2-13-209-85-23.ap-northeast-2.compute.amazonaws.com"
     port = 8080
 
-    
+
     recommender = Pibo_recommender.recommend_SVD()
     recommender.update_model_achievement()
     recommender.update_model_engagement()
