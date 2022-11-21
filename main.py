@@ -2,6 +2,7 @@ from recommender_system import Pibo_recommender
 import argparse
 import socket
 import threading
+import time
 
 # TODO: make DB update condition
 
@@ -72,6 +73,7 @@ def handle_client(client_socket: socket.socket):
         print("recommend_task:", recommended_tasks)
         message = str(recommended_tasks) # TODO : reform message
         client_socket.sendall(message.encode())
+        time.sleep(2)
         client_socket.close()
 
     # update achievement evaluation
