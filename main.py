@@ -84,19 +84,36 @@ def handle_client(client_socket: socket.socket):
             parent_score = int(message[5])
             expert_score = int(message[6])
             
-            recommender = Pibo_recommender.recommend_SVD()
-            recommender.update_achievement(user_id, category_id, task_id, parent_score, expert_score)
-            # TODO : success or fail -> message
+            try:
+                recommender = Pibo_recommender.recommend_SVD()
+                recommender.update_achievement(user_id, category_id, task_id, parent_score, expert_score)
+                message = 'success'
+            except:
+                message = 'fail'
+            client_socket.sendall(message.encode())
+            time.sleep(20)
+            client_socket.close()
+
         elif message[2] == 'engagement':
             category_id = int(message[3])
             task_id = int(message[4])
             engagement_score = int(message[5])
             engagement_level = int(message[6])
-
-            recommender = Pibo_recommender.recommend_SVD()
-            recommender.update_engagement(user_id, task_id, engagement_score, engagement_level)
-            # TODO : success or fail -> message
-        pass
+            try:
+                recommender = Pibo_recommender.recommend_SVD()
+                recommender.update_engagement(user_id, task_id, engagement_score, engagement_level)
+                message = 'success'
+            except:
+                message = 'fail'
+            client_socket.sendall(message.encode())
+            time.sleep(20)
+            client_socket.close()
+        else:
+            print("wrong message")
+            message = "wrong message"
+            client_socket.sendall(message.encode())
+            time.sleep(20)
+            client_socket.close()
 
     # if command is not recommend or update, close socket
     else:
