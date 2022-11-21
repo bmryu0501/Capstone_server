@@ -71,7 +71,7 @@ def handle_client(client_socket: socket.socket):
         
 
         print("recommend_task:", recommended_tasks)
-        message = str(recommended_tasks) # TODO : reform message
+        message = str(recommended_tasks[0]) + ' ' + str(recommended_tasks[1])
         client_socket.sendall(message.encode())
         time.sleep(20)
         client_socket.close()

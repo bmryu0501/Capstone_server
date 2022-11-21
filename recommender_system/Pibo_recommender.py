@@ -16,6 +16,7 @@ Recommend class for pibo recommender system
 
 ## TODO ##
 1. grid_search for hyperparameter tuning
+2. let predicted tables have all user_id and task_id
 '''
 
 class recommend_SVD:
@@ -376,7 +377,7 @@ class recommend_SVD:
         # connect mysql DB
         self.__connectDB()
         # insert data into mysql DB
-        sql = "INSERT INTO engagement (UID, Category_ID, TID, Engagement_Score, Engagement_Level) VALUES (%f, %f, %f, %f, %f)"
+        sql = "INSERT INTO engagement (UID, CID, TID, Engagement_Score, Engagement_Level) VALUES (%f, %f, %f, %f, %f)"
         self.curs.execute(sql, (user_id, category_id, task_id, engagement_score, engagement_level))
         self.conn.commit()
         # close mysql DB
