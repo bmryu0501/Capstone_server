@@ -73,7 +73,7 @@ def handle_client(client_socket: socket.socket):
         print("recommend_task:", recommended_tasks)
         message = str(recommended_tasks) # TODO : reform message
         client_socket.sendall(message.encode())
-        time.sleep(2)
+        time.sleep(20)
         client_socket.close()
 
     # update achievement evaluation
@@ -156,9 +156,9 @@ if __name__ == '__main__':
     port = 8080
 
 
-    recommender = Pibo_recommender.recommend_SVD()
-    recommender.update_model_achievement()
-    recommender.update_model_engagement()
+    #recommender = Pibo_recommender.recommend_SVD()
+    #recommender.update_model_achievement()
+    #recommender.update_model_engagement()
     
     accept_func(host, port)
     
