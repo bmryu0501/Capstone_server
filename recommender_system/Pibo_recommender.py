@@ -346,9 +346,15 @@ class recommend_SVD:
         -------
         None
         '''
+        user_id = int(user_id)
+        category_id = int(category_id)
+        task_id = int(task_id)
+        score_parent = int(score_parent)
+        score_expert = int(score_expert)
+
         # connect to mysql DB
         self.__connectDB()
-        # insert data into mysql DB    
+        # insert data into mysql DB
         sql = "INSERT INTO achievement (UID, CID, TID, Score_Parent, Score_Expert) VALUES (%d, %d, %d, %d, %d)"
         self.curs.execute(sql, (user_id, category_id, task_id, score_parent, score_expert))
         self.conn.commit()
@@ -374,6 +380,12 @@ class recommend_SVD:
         -------
         None
         '''
+        user_id = int(user_id)
+        category_id = int(category_id)
+        task_id = int(task_id)
+        engagement_score = int(engagement_score)
+        engagement_level = int(engagement_level)
+
         # connect mysql DB
         self.__connectDB()
         # insert data into mysql DB
