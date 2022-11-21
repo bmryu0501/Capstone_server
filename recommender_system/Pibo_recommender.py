@@ -116,19 +116,23 @@ class recommend_SVD:
         float
             Estimated achievement evaluation
         '''
-        # make ranking list of tasks for user_id
+        # make ranking list of tasks for user_id from achievement_predicted table
         ranking_list = []
-        for task_id in self.data_achievement_predicted['TID'].unique():
-            ranking_list.append(self.model_achievement.predict(user_id, task_id).est)
+        
+        for row in self.data_achievement_predicted:
+            if row[0] == user_id:
+                ranking_list.append(np.array[row[0], row[1]])
         ranking_list = np.array(ranking_list)
-        ranking_list = ranking_list.argsort()[::-1]
+        # sort ranking list by estimated achievement evaluation
+        ranking_list = ranking_list[ranking_list[:, 1].argsort()]
+        
 
         # return depends on the number of tasks to recommend
         # recommend single task
         if num_task == 1:
-            return ranking_list[0]
+            return ranking_list[0][0]
         else:
-            return ranking_list[:num_task]
+            return ranking_list[:num_task][0]
 
     def recommend_engagement(self, user_id, num_task=1):
         '''
@@ -148,16 +152,18 @@ class recommend_SVD:
         '''
         # make ranking list of tasks for user_id
         ranking_list = []
-        for task_id in self.data_engagement_predicted['TID'].unique():
-            ranking_list.append(self.model_engagement.predict(user_id, task_id).est)
+        for row in self.data_engagement_predicted:
+            if row[0] == user_id:
+                ranking_list.append([row[0], row[1]])
         ranking_list = np.array(ranking_list)
-        ranking_list = ranking_list.argsort()[::-1]
+        # sort ranking list by estimated engagement level
+        ranking_list = ranking_list[ranking_list[:, 1].argsort()]
         
         # return depends on the number of tasks to recommend
         if num_task == 1:
-            return ranking_list[0]
+            return ranking_list[0][0]
         else:
-            return ranking_list[:num_task]
+            return ranking_list[:num_task][0]
 
     def __setAchievement_predicted(self):
         '''
@@ -237,6 +243,8 @@ class recommend_SVD:
                                                       self.data_achievement['Score_Expert'] * self.__beta)
         # drop duplicated data
         self.data_achievement = self.data_achievement.drop_duplicates(['UID', 'TID'], keep='last')
+        user_list = self.data_achievement['UID'].unique()
+        task_list = self.data_achievement['TID'].unique()
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
@@ -244,22 +252,22 @@ class recommend_SVD:
         
 
         # split data into train set and test set
-        trainset_achievement, testset_achievement = train_test_split(self.data_achievement, test_size=.25)
+        self.__trainset_achievement, self.__testset_achievement = train_test_split(self.data_achievement, test_size=.25)
         self.__closeDB()
 
         # set model
-        model_achievement = SVD(n_factors=10)
+        self.model_achievement = SVD(n_factors=10)
         # train model
-        model_achievement.fit(trainset_achievement)
+        self.model_achievement.fit(self.__trainset_achievement)
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Not_Achieved'])
-        for user_id in self.data_achievement['UID']:
-            for task_id in self.data_achievement['TID']:
+        for user_id in user_list:
+            for task_id in task_list:
                 # predict
-                pred = model_achievement.predict(user_id, task_id).est
-                # append to predictions
-                predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Not_Achieved': pred}, ignore_index=True)
+                pred = self.model_achievement.predict(user_id, task_id).est
+                # concat to predictions
+                predictions = pd.concat([predictions, pd.DataFrame([[user_id, task_id, pred]], columns=['UID', 'TID', 'Not_Achieved'])])
 
         # update predicted data in mysql DB
         engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')
@@ -289,6 +297,8 @@ class recommend_SVD:
         # preprocess data
         # drop duplicated data
         self.data_engagement = self.data_engagement.drop_duplicates(['UID', 'TID'], keep='last')
+        user_list = self.data_engagement['UID'].unique()
+        task_list = self.data_engagement['TID'].unique()
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
@@ -305,12 +315,12 @@ class recommend_SVD:
 
         # predict for every user and task
         predictions = pd.DataFrame(columns=['UID', 'TID', 'Engagement_Level'])
-        for user_id in self.data_engagement['UID']:
-            for task_id in self.data_engagement['TID']:
+        for user_id in user_list:
+            for task_id in task_list:
                 # predict
                 pred = self.model_engagement.predict(user_id, task_id).est
-                # append to predictions
-                predictions = predictions.append({'UID': user_id, 'TID': task_id, 'Engagement_Level': pred}, ignore_index=True)
+                # concat to predictions
+                predictions = pd.concat([predictions, pd.DataFrame([[user_id, task_id, pred]], columns=['UID', 'TID', 'Engagement_Level'])])
 
         # update predicted data in mysql DB
         engine = create_engine('mysql+pymysql://capstone2:sirlab2020@localhost/Capstone_DB?charset=utf8', encoding='utf-8')

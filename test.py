@@ -1,2 +1,3 @@
-from recommender_system import Pibo_recommender
+import numpy as np
 
+print(np.array([3, 1]))
