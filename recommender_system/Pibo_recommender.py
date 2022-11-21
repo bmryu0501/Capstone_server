@@ -122,7 +122,9 @@ class recommend_SVD:
         for row in self.data_achievement_predicted:
             if row[0] == user_id:
                 ranking_list.append(np.array[row[0], row[1]])
-        ranking_list.sort(key=lambda x: x[1])        
+        ranking_list.sort(key=lambda x: x[1])
+        #print shape of ranking_list
+        print(ranking_list.shape)   
 
         # return depends on the number of tasks to recommend
         # recommend single task
