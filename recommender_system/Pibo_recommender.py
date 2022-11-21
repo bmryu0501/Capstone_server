@@ -121,7 +121,7 @@ class recommend_SVD:
 
         for idx, row in self.data_achievement_predicted.iterrows():
             if row['UID'] == user_id:
-                ranking_list.append([row['TID'], row['Score_Predicted']])
+                ranking_list.append([row['TID'], row['Not_Achieved']])
         # sort by score descending
         ranking_list.sort(key=lambda x: x[1], reverse=True)
 
@@ -153,7 +153,7 @@ class recommend_SVD:
         ranking_list = []
         for idx, row in self.data_engagement_predicted.iterrows():
             if row['UID'] == user_id:
-                ranking_list.append([row['TID'], row['Score_Predicted']])
+                ranking_list.append([row['TID'], row['Engagement_Level']])
         # sort by score descending
         ranking_list.sort(key=lambda x: x[1], reverse=True)
         
