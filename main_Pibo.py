@@ -31,8 +31,12 @@ def recommend():
     sock.close()
 
 if __name__ == '__main__':
-    command = input('command: ')
-    if command == 'update':
-        update()
-    elif command == 'recommend':
-        recommend()
+    while True:
+        command = input('command: ')
+        if command == 'update':
+            update()
+        elif command == 'recommend':
+            recommend()
+        else:
+            print('command is not recommend or update')
+            exit()

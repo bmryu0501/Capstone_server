@@ -173,9 +173,9 @@ if __name__ == '__main__':
     port = 8080
 
 
-    #recommender = Pibo_recommender.recommend_SVD()
-    #recommender.update_model_achievement()
-    #recommender.update_model_engagement()
+    recommender = Pibo_recommender.recommend_SVD()
+    recommender.update_model_achievement()
+    recommender.update_model_engagement()
     
     accept_func(host, port)
     
