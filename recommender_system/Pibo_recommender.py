@@ -51,6 +51,7 @@ class recommend_SVD:
         self.data_engagement_predicted = self.__setEngagement_predicted()
 
         self.__closeDB()
+
         # update model
         if update:
             self.update_model_achievement()
@@ -212,10 +213,8 @@ class recommend_SVD:
         user_id_list : list
             User id list
         '''
-        self.__connectDB()
         sql = "SELECT UID FROM users"
         self.curs.execute(sql)
-        self.__closeDB()
 
         return [row['UID'] for row in self.curs.fetchall()]
 
@@ -232,10 +231,8 @@ class recommend_SVD:
         task_id_list : list
             Task id list
         '''
-        self.__connectDB()
         sql = "SELECT TID FROM tasks"
         self.curs.execute(sql)
-        self.__closeDB()
 
         return [row['TID'] for row in self.curs.fetchall()]
 
