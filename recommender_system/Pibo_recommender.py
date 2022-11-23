@@ -199,6 +199,46 @@ class recommend_SVD:
         self.curs.execute(sql)
         return pd.DataFrame(self.curs.fetchall())
 
+    def __get_user_list(self):
+        '''
+        Get user id list
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        user_id_list : list
+            User id list
+        '''
+        self.__connectDB()
+        sql = "SELECT UID FROM users"
+        self.curs.execute(sql)
+        self.__closeDB()
+
+        return [row['UID'] for row in self.curs.fetchall()]
+
+    def __get_task_list(self):
+        '''
+        Get task id list
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        task_id_list : list
+            Task id list
+        '''
+        self.__connectDB()
+        sql = "SELECT TID FROM tasks"
+        self.curs.execute(sql)
+        self.__closeDB()
+
+        return [row['TID'] for row in self.curs.fetchall()]
+
     def set_alpha_beta(self, alpha, beta):
         '''
         Set alpha and beta
@@ -217,6 +257,7 @@ class recommend_SVD:
 
         self.__alpha = alpha
         self.__beta = beta
+
 
     def update_model_achievement(self):
         '''
@@ -242,8 +283,8 @@ class recommend_SVD:
                                                       self.data_achievement['Score_Expert'] * self.__beta)
         # drop duplicated data
         self.data_achievement = self.data_achievement.drop_duplicates(['UID', 'TID'], keep='last')
-        user_list = self.data_achievement['UID'].unique()
-        task_list = self.data_achievement['TID'].unique()
+        user_list = self.__get_user_list()
+        task_list = self.__get_task_list()
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
@@ -296,8 +337,8 @@ class recommend_SVD:
         # preprocess data
         # drop duplicated data
         self.data_engagement = self.data_engagement.drop_duplicates(['UID', 'TID'], keep='last')
-        user_list = self.data_engagement['UID'].unique()
-        task_list = self.data_engagement['TID'].unique()
+        user_list = self.__get_user_list()
+        task_list = self.__get_task_list()
         # set reader
         reader = Reader(rating_scale=(0, 100))
         # set data
