@@ -73,7 +73,7 @@ def handle_client(client_socket: socket.socket):
         print("recommend_task:", recommended_tasks)
         message = str(recommended_tasks[0]) + ' ' + str(recommended_tasks[1])
         client_socket.sendall(message.encode())
-        print("---------------------")
+        print("------------------------------------")
         time.sleep(20)
         client_socket.close()
 
@@ -135,21 +135,20 @@ def accept_func(host, port):
     while True:
         try:
             # if client is connected, return new socket object and client's address
-            client_socket, addr = server_socket.accept()            
+            client_socket, addr = server_socket.accept()
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
             break
 
         # accept input with accept() function
         # and after that, handle client with handle_client function using new thread
-        print("---------------------")
+        print("------------------------------------")
         print("Connected by", addr)
         client_handler = threading.Thread(
             target=handle_client,
             args=(client_socket,)
         )
         client_handler.daemon = True
-        # print("client_handler.daemon:", client_handler.daemon)
         client_handler.start()
     
 

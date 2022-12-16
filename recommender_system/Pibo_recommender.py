@@ -16,7 +16,7 @@ Recommend class for pibo recommender system
 
 ## TODO ##
 1. grid_search for hyperparameter tuning
-2. let predicted tables have all user_id and task_id
+2. recommender should send category id also
 '''
 
 class recommend_SVD:
